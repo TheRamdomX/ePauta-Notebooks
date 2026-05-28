@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import '@/styles/globals.css'
+import Ramo from '../../components/Ramo.astro'
+import ramos from '../../data/eit/ramos.json'
+---
+
+<Layout title="Informática y Telecomunicaciones - ePAUTA">
+  <header>
+    <h1 class="ramo text-[24px]">
+      <a href="/">ePAUTA</a> | Informática y Telecomunicaciones
+    </h1>
+  </header>
+  <!-- <a href="/eit/examen-grado">
+    <section class="grado">
+        **Material para examen de grado
+    </section></a> -->
+  <!-- <div  class="creditos">
+        <small>**Colaboración realizada por la estudiante egresada<a href="https://www.linkedin.com/in/imanjarufe/">Iman jarufe</a></small>
+    </div>
+     -->
+  <div class="grid">
+    {
+      ramos.map((ramo: { codigo: string; nombre: string }) => (
+        <Ramo
+          codigo={ramo.codigo}
+          nombre={ramo.nombre}
+          href={`/eit/${ramo.codigo}`}
+          carrera="eit"
+        />
+      ))
+    }
+  </div>
+</Layout>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .creditos {
+    color: white;
+    padding: 10px;
+    text-align: right;
+  }
+
+  small > a {
+    text-decoration: underline;
+    margin-left: 5px;
+  }
+
+  .grado {
+    font-weight: 500;
+    text-align: center;
+    background-color: white;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-radius: 5px;
+  }
+  .grado:hover {
+    color: #ef4444;
+  }
+</style>

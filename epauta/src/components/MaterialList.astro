@@ -1,0 +1,31 @@
+---
+interface Recurso {
+  tipo: string
+  nombre: string
+  semestre: string
+  año: string
+  tags: string[]
+  codigo: string
+  path: string
+}
+
+interface Props {
+  recursos: Recurso[]
+}
+
+const { recursos } = Astro.props
+---
+
+{
+  recursos.map((recurso: Recurso) => (
+    <recurso
+      tipo={recurso.tipo}
+      nombre={recurso.nombre}
+      semestre={recurso.semestre}
+      año={recurso.año}
+      tags={recurso.tags}
+      codigo={recurso.codigo}
+      path={recurso.path}
+    />
+  ))
+}

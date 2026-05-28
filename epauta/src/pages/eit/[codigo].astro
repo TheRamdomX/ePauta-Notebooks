@@ -1,0 +1,24 @@
+---
+/**
+ * Página dinámica para cursos de EIT.
+ * En modo SSR (output: 'server') no se usa getStaticPaths().
+ * El nombre del ramo se resuelve desde los datos estáticos en tiempo de petición.
+ */
+
+import CareerCoursePage from "@/components/CareerCoursePage.astro";
+import eit from "@/data/eit/ramos.json";
+
+const { codigo } = Astro.params;
+
+if (!codigo) {
+  return Astro.redirect("/eit");
+}
+
+const ramo = eit.find((r: { codigo: string; nombre: string }) => r.codigo === codigo);
+
+if (!ramo) {
+  return Astro.redirect("/eit");
+}
+---
+
+<CareerCoursePage carrera="eit" codigo={codigo} nombre={ramo.nombre} />

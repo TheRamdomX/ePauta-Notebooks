@@ -1,0 +1,58 @@
+---
+import SpeedInsights from '@vercel/speed-insights/astro'
+interface Props {
+  title: string
+}
+
+const { title } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Epauta, web de almacenamiento de material de estudio para la comunidad estudiantil"
+    />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" style="color: red;" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <SpeedInsights />
+  </head>
+  <body>
+    <div class="container">
+      <slot />
+    </div>
+  </body><style is:global>
+    html {
+      font-family: system-ui, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      position: relative;
+      height: 100%;
+      width: 100%;
+      background: #ef4444;
+    }
+    .logo {
+      color: #ef4444;
+      font-weight: bold;
+    }
+    header {
+      margin-bottom: 10px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .ramo {
+      font-size: 30px;
+      font-weight: bold;
+      color: white;
+    }
+  </style>
+</html>

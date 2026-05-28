@@ -1,0 +1,23 @@
+---
+/**
+ * Página dinámica para cursos de EOC (Obras Civiles).
+ * En modo SSR (output: 'server') no se usa getStaticPaths().
+ */
+
+import CareerCoursePage from "@/components/CareerCoursePage.astro";
+import eoc from "@/data/eoc/ramos.json";
+
+const { codigo } = Astro.params;
+
+if (!codigo) {
+  return Astro.redirect("/eoc");
+}
+
+const ramo = eoc.find((r: { codigo: string; nombre: string }) => r.codigo === codigo);
+
+if (!ramo) {
+  return Astro.redirect("/eoc");
+}
+---
+
+<CareerCoursePage carrera="eoc" codigo={codigo} nombre={ramo.nombre} />

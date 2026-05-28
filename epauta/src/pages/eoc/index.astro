@@ -1,0 +1,38 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import '@/styles/globals.css'
+import Ramo from '../../components/Ramo.astro'
+import ramos from '../../data/eoc/ramos.json'
+---
+
+<Layout title="Obras Civiles - ePAUTA">
+  <header>
+    <h1 class="ramo text-[24px]"><a href="/">ePAUTA</a> | Obras Civiles</h1>
+  </header>
+  <div class="grid">
+    {
+      ramos.map((ramo: { codigo: string; nombre: string }) => (
+        <Ramo
+          codigo={ramo.codigo}
+          nombre={ramo.nombre}
+          href={`/eoc/${ramo.codigo}`}
+          carrera="eoc"
+        />
+      ))
+    }
+  </div>
+</Layout>
+
+<style>
+  .grid {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

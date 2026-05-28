@@ -1,0 +1,235 @@
+---
+/**
+ * Componente reutilizable para páginas de cursos por carrera.
+ *
+ * Modo de operación (en orden de prioridad):
+ * 1. Si el ramo tiene un notebookId en notebook_mapping.json →
+ *    carga fuentes desde open-notebook + muestra RamoChat.
+ * 2. Fallback → lista archivos directamente desde Cloudflare R2
+ *    (comportamiento original, sin chat).
+ */
+
+import { storage } from "@/lib/storage";
+import Layout from "@/layouts/Layout.astro";
+import ResourcesWithViewer from "@/components/ResourcesWithViewer";
+import RamoChat from "@/components/RamoChat";
+import CollapsibleChatPanel from "@/components/CollapsibleChatPanel";
+import ErrorMessage from "@/components/ui/ErrorMessage.astro";
+import EmptyState from "@/components/ui/EmptyState.astro";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import type { Carrera } from "@/types";
+import { CARRERA_NAMES } from "@/types";
+import { getNotebookId } from "@/lib/ramos";
+import { listSourcesByNotebook } from "@/lib/open-notebook";
+import { cacheGet, cacheSet, sourcesCacheKey } from "@/lib/redis";
+import "@/styles/globals.css";
+
+interface Props {
+  carrera: Carrera;
+  codigo: string;
+  nombre: string;
+}
+
+const { carrera, codigo, nombre } = Astro.props;
+const searchParam = Astro.url.searchParams.get("search") || "";
+const carreraName = CARRERA_NAMES[carrera];
+
+// ─── Intentar usar open-notebook si el ramo está mapeado ──────────
+
+const notebookId = getNotebookId(carrera, codigo);
+console.log(`[CareerCoursePage] ${carrera}/${codigo} → notebookId:`, notebookId);
+let useOpenNotebook = !!notebookId;
+let openNotebookError = false;
+
+type Recurso = {
+  name: string;
+  id: string;
+  publicUrl: string;
+  updated_at: string | null;
+  created_at: string | null;
+};
+
+let recursos: Recurso[] = [];
+let r2Error: unknown = null;
+
+if (useOpenNotebook) {
+  try {
+    console.log(`[CareerCoursePage] Intentando obtener sources de open-notebook para ${notebookId}`);
+    // Check cache first
+    const cacheKey = sourcesCacheKey(notebookId!);
+    let sources = await cacheGet<Array<{ id: string; title: string; url?: string; original_filename?: string }>>(cacheKey);
+
+    if (!sources) {
+      console.log(`[CareerCoursePage] Cache miss, fetching from API...`);
+      sources = await listSourcesByNotebook(notebookId!);
+      console.log(`[CareerCoursePage] Obtuvimos ${sources.length} sources`);
+      await cacheSet(cacheKey, sources, 300);
+    } else {
+      console.log(`[CareerCoursePage] Obtenido ${sources.length} sources del cache`);
+    }
+
+    // Map open-notebook Source objects → Recurso shape for ResourcesWithViewer
+    recursos = sources
+      .filter((s) => s.asset?.url || s.url)
+      .map((s) => ({
+        name: s.original_filename || s.title || s.id,
+        id: s.id,
+        publicUrl: s.asset?.url || s.url || "",
+        updated_at: null,
+        created_at: null,
+      }));
+    console.log(`[CareerCoursePage] Mapeados ${recursos.length} recursos`);
+  } catch (err) {
+    console.error(`[open-notebook] Error cargando fuentes de ${carrera}/${codigo}:`, err);
+    openNotebookError = true;
+    useOpenNotebook = false; // fall through to R2
+  }
+}
+
+// ─── Fallback: listar archivos directamente desde R2 ──────────────
+
+if (!useOpenNotebook) {
+  const { data, error } = await storage.from("epauta").list(`${carrera}/${codigo}`, {
+    limit: 100,
+    offset: 0,
+    sortBy: { column: "name", order: "asc" },
+  });
+
+  r2Error = error;
+
+  if (!error && data) {
+    const recursosBase = await Promise.all(
+      data.map(async (recurso) => {
+        const { data: publicUrlData } = storage
+          .from("epauta")
+          .getPublicUrl(`${carrera}/${codigo}/${recurso.name}`);
+        return {
+          ...recurso,
+          publicUrl: publicUrlData?.publicUrl || "",
+          codigo,
+        };
+      })
+    );
+
+    recursos = recursosBase.filter((r) =>
+      r.name.toLowerCase().includes(searchParam.toLowerCase())
+    );
+  }
+}
+
+// ─── Filtrar por búsqueda cuando venimos de open-notebook ─────────
+
+if (useOpenNotebook && searchParam) {
+  recursos = recursos.filter((r) =>
+    r.name.toLowerCase().includes(searchParam.toLowerCase())
+  );
+}
+---
+
+<Layout title={`${codigo} - ${nombre}`}>
+  <!-- Header con breadcrumb y búsqueda -->
+  <header
+    class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 my-4"
+  >
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+      <a href="/" class="text-white transition-colors">ePAUTA</a>
+      <span class="text-white mx-2">|</span>
+      <a href={`/${carrera}`} class="text-white transition-colors"
+        >{carreraName}</a
+      >
+      <span class="text-white mx-2">|</span>
+      <span class="text-white">{codigo}</span>
+    </h1>
+
+    <form method="get" class="flex gap-2 w-full md:w-auto">
+      <input
+        type="text"
+        name="search"
+        placeholder="Buscar archivos..."
+        value={searchParam}
+        class="flex-1 md:flex-initial px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-[200px]"
+        aria-label="Buscar archivos"
+      />
+      <button
+        type="submit"
+        class="px-4 py-2 bg-white text-primary border border-gray-300 rounded-md hover:bg-primary hover:text-white hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        aria-label="Buscar"
+      >
+        <MagnifyingGlassIcon className="w-5 h-5" />
+      </button>
+    </form>
+  </header>
+
+  <!-- Errores -->
+  {
+    (r2Error || openNotebookError) && (
+      <ErrorMessage
+        title="Error al cargar los recursos"
+        message="No se pudieron obtener los archivos del servidor. Por favor, intenta más tarde."
+        showRetry={true}
+      />
+    )
+  }
+
+  <!-- Sin recursos -->
+  {
+    !r2Error && !openNotebookError && recursos.length === 0 && !searchParam && (
+      <EmptyState
+        title="Sin recursos disponibles"
+        message={`El curso ${codigo} aún no tiene archivos disponibles.`}
+        icon="📚"
+      />
+    )
+  }
+
+  {
+    !r2Error && !openNotebookError && recursos.length === 0 && searchParam && (
+      <EmptyState
+        title="Sin resultados"
+        message={`No se encontraron archivos que coincidan con "${searchParam}".`}
+        icon="🔍"
+      >
+        <a
+          href={`/${carrera}/${codigo}`}
+          class="inline-block mt-4 text-sm font-medium text-primary hover:underline"
+        >
+          Ver todos los archivos
+        </a>
+      </EmptyState>
+    )
+  }
+
+  <!-- Contenido principal: visor + chat (si hay notebookId) -->
+  {
+    !r2Error && !openNotebookError && recursos.length > 0 && (
+      <div class={`flex flex-col ${notebookId ? "lg:flex-row items-start" : ""} gap-4 mt-8`}>
+        {/* Visor de archivos */}
+        <div class={notebookId ? "w-full lg:flex-1 min-w-0" : "w-full"}>
+          <ErrorBoundary client:only="react">
+            <ResourcesWithViewer recursos={recursos} client:visible />
+          </ErrorBoundary>
+        </div>
+
+        {/* Panel de chat IA desplegable (solo cuando hay integración con open-notebook) */}
+        {notebookId && (
+          <ErrorBoundary client:only="react">
+            <div class="w-full lg:w-96 shrink-0 lg:sticky lg:top-4 z-40 h-[80vh]">
+              <CollapsibleChatPanel
+                notebookId={notebookId}
+                ramoNombre={nombre}
+                client:visible
+              >
+                <RamoChat
+                  notebookId={notebookId}
+                  ramoNombre={nombre}
+                  client:visible
+                />
+              </CollapsibleChatPanel>
+            </div>
+          </ErrorBoundary>
+        )}
+      </div>
+    )
+  }
+</Layout>

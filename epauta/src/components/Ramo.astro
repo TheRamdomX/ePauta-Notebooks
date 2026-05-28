@@ -1,0 +1,64 @@
+---
+import { storage } from '@/lib/storage'
+import { CardDescription, CardTitle } from './ui/card'
+
+interface Props {
+  nombre: string
+  codigo: string
+  href: string
+  carrera: string // plan-comun, eit, eoc, eii
+}
+
+const { href, nombre, codigo, carrera } = Astro.props
+
+// Construir la ruta completa: carrera/codigo
+const rutaCompleta = `${carrera}/${codigo}`
+
+const { data, error } = await storage.from('epauta').list(rutaCompleta, {
+  limit: 100,
+  offset: 0,
+  sortBy: { column: 'name', order: 'asc' },
+})
+
+if (error) {
+  console.error(`Error al listar archivos de ${rutaCompleta}:`, error)
+}
+
+const cantidad = data?.length || 0
+---
+
+<a href={href} class="card">
+  <CardTitle className="nombre">{nombre}</CardTitle>
+  <CardDescription className="codigo">{codigo}</CardDescription>
+  <span>{cantidad} archivos</span>
+</a>
+<style>
+  .card {
+    position: relative;
+    background-color: #f3f3f3;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    height: 100px;
+  }
+  .card:hover .nombre {
+    color: #ef4444;
+  }
+  .nombre {
+    font-size: 15px;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+  .codigo {
+    font-size: 15px;
+    color: #727272;
+  }
+  span {
+    position: absolute;
+    font-size: 15px;
+    color: #727272;
+    bottom: 0;
+    right: 0;
+    padding-right: 15px;
+    padding-bottom: 10px;
+  }
+</style>

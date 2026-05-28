@@ -1,0 +1,23 @@
+---
+/**
+ * Página dinámica para cursos de Plan Común.
+ * En modo SSR (output: 'server') no se usa getStaticPaths().
+ */
+
+import CareerCoursePage from "@/components/CareerCoursePage.astro";
+import planComun from "@/data/plan-comun/ramos.json";
+
+const { codigo } = Astro.params;
+
+if (!codigo) {
+  return Astro.redirect("/plan-comun");
+}
+
+const ramo = planComun.find((r: { codigo: string; nombre: string }) => r.codigo === codigo);
+
+if (!ramo) {
+  return Astro.redirect("/plan-comun");
+}
+---
+
+<CareerCoursePage carrera="plan-comun" codigo={codigo} nombre={ramo.nombre} />

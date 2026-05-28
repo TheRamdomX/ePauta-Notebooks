@@ -1,0 +1,66 @@
+[
+  {
+    "codigo": "CBM-1000",
+    "nombre": "Álgebra y geometría"
+  },
+  {
+    "codigo": "CBM-1001",
+    "nombre": "Cálculo I"
+  },
+  {
+    "codigo": "CBQ-1000",
+    "nombre": "Química"
+  },
+  {
+    "codigo": "CIT-1000",
+    "nombre": "Programación"
+  },
+  {
+    "codigo": "FIC-1000",
+    "nombre": "Comunicación para la ingeniería"
+  },
+  {
+    "codigo": "CBM-1002",
+    "nombre": "Álgebra lineal"
+  },
+  {
+    "codigo": "CBM-1003",
+    "nombre": "Cálculo II"
+  },
+  {
+    "codigo": "CBF-1000",
+    "nombre": "Mecánica"
+  },
+  {
+    "codigo": "CIT-1010",
+    "nombre": "Programación avanzada"
+  },
+  {
+    "codigo": "CBM-1005",
+    "nombre": "Ecuaciones diferenciales"
+  },
+  {
+    "codigo": "CBM-1006",
+    "nombre": "Cálculo III"
+  },
+  {
+    "codigo": "CBF-1001",
+    "nombre": "Calor y ondas"
+  },
+  {
+    "codigo": "CBF-1002",
+    "nombre": "Electricidad y magnetismo"
+  },
+  {
+    "codigo": "CII-2750",
+    "nombre": "Optimización"
+  },
+  {
+    "codigo": "CII-2100",
+    "nombre": "Introducción a la economía"
+  },
+  {
+    "codigo": "CII-1000",
+    "nombre": "Contabilidad y costos"
+  }
+]

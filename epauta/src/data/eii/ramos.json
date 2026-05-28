@@ -1,0 +1,86 @@
+[
+  {
+    "codigo": "CII-2401",
+    "nombre": "Mecánica de fluidos"
+  },
+  {
+    "codigo": "CII-2751",
+    "nombre": "Inferencia estadística"
+  },
+  {
+    "codigo": "CII-1001",
+    "nombre": "Teoría organizacional"
+  },
+  {
+    "codigo": "CII-2402",
+    "nombre": "Termodinámica"
+  },
+  {
+    "codigo": "CII-2755",
+    "nombre": "Modelos estocásticos"
+  },
+  {
+    "codigo": "CII-2101",
+    "nombre": "Microeconomía"
+  },
+  {
+    "codigo": "CII-2002",
+    "nombre": "Ingeniería económica"
+  },
+  {
+    "codigo": "CII-2656",
+    "nombre": "Econometría"
+  },
+  {
+    "codigo": "CII-2403",
+    "nombre": "Proyetos energéticos"
+  },
+  {
+    "codigo": "CII-2253",
+    "nombre": "Producción"
+  },
+  {
+    "codigo": "CII-2102",
+    "nombre": "Marketing"
+  },
+  {
+    "codigo": "CII-2003",
+    "nombre": "Finanzas"
+  },
+  {
+    "codigo": "CII-2504",
+    "nombre": "Data Science"
+  },
+  {
+    "codigo": "CII-2757",
+    "nombre": "Simulación"
+  },
+  {
+    "codigo": "CII-2254",
+    "nombre": "Logística"
+  },
+  {
+    "codigo": "CII-2103",
+    "nombre": "Gestión estrategica"
+  },
+  {
+    "codigo": "CII-2250",
+    "nombre": "Estática"
+  },
+  {
+    "codigo": "CII-2501",
+    "nombre": "Bases de datos"
+  },
+  {
+    "codigo": "CBE-2000",
+    "nombre": "Probabilidad y estadística"
+  },
+  {
+    "codigo": "CII-2104",
+    "nombre": "Evaluación de proyectos"
+  },
+  {
+    "codigo": "CII-3101",
+    "nombre": "Liderazgo y emprendimiento"
+  }
+]

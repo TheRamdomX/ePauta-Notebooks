@@ -1,0 +1,98 @@
+[
+  {
+    "codigo": "CIT-1010",
+    "nombre": "Programación avanzada"
+  },
+  {
+    "codigo": "CIT-2107",
+    "nombre": "Electrónica y electrotecnia"
+  },
+  {
+    "codigo": "CIT-2006",
+    "nombre": "Estructura de Datos y Algoritmos"
+  },
+  {
+    "codigo": "CIT-2007",
+    "nombre": "Bases de Datos"
+  },
+  {
+    "codigo": "CIT-2114",
+    "nombre": "Redes de Datos"
+  },
+  {
+    "codigo": "CIT-2008",
+    "nombre": "Desarrollo web y móvil"
+  },
+  {
+    "codigo": "CIT-2009",
+    "nombre": "Bases de Datos Avanzadas"
+  },
+  {
+    "codigo": "CIT-2108",
+    "nombre": "Taller de Redes y Servicios"
+  },
+  {
+    "codigo": "CIT-2205",
+    "nombre": "Proyectos en TICS I"
+  },
+  {
+    "codigo": "CIT-2109",
+    "nombre": "Arquitectura y Organización de Computadores"
+  },
+  {
+    "codigo": "CIT-2110",
+    "nombre": "Señales y Sistemas"
+  },
+  {
+    "codigo": "CIT-2010",
+    "nombre": "Sistemas Operativos"
+  },
+  {
+    "codigo": "CIT-2206",
+    "nombre": "Gestión Organizacional"
+  },
+  {
+    "codigo": "CIT-2111",
+    "nombre": "Comunicaciones Digitales"
+  },
+  {
+    "codigo": "CIT-2011",
+    "nombre": "Sistemas Distribuidos"
+  },
+  {
+    "codigo": "CIT-2012",
+    "nombre": "Ingeniería de Software"
+  },
+  {
+    "codigo": "CIT-2112",
+    "nombre": "Tecnologías Inalámbricas"
+  },
+  {
+    "codigo": "CIT-2113",
+    "nombre": "Criptografía y Seguridad en Redes"
+  },
+  {
+    "codigo": "CIT-2013",
+    "nombre": "Inteligencia Artificial"
+  },
+  {
+    "codigo": "CIT-2207",
+    "nombre": "Evaluación de Proyectos TIC"
+  },
+  {
+    "codigo": "CIT-3000",
+    "nombre": "Arquitectura de Software"
+  },
+  {
+    "codigo": "CIT-3100",
+    "nombre": "Arquitecturas Emergentes"
+  },
+  {
+    "codigo": "CIT-3202",
+    "nombre": "Data Science"
+  },
+  {
+    "codigo": "CIT-2204",
+    "nombre": "Probabilidad y estadística"
+  }
+]

@@ -1,0 +1,35 @@
+---
+/**
+ * Componente de estado vacío
+ * Muestra un mensaje cuando no hay contenido disponible
+ */
+
+interface Props {
+  title?: string
+  message?: string
+  icon?: string
+  class?: string
+}
+
+const {
+  title = 'No hay recursos disponibles',
+  message = 'No se encontraron archivos para este curso.',
+  icon = '📭',
+  class: className = '',
+} = Astro.props
+---
+
+<div class={`my-8 ${className}`}>
+  <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+    <div class="text-5xl mb-4" role="img" aria-label={title}>
+      {icon}
+    </div>
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">
+      {title}
+    </h3>
+    <p class="text-sm text-gray-600 mb-4">
+      {message}
+    </p>
+    <slot />
+  </div>
+</div>

@@ -1,0 +1,90 @@
+[
+  {
+    "codigo": "COC-2001",
+    "nombre": "Ingeniería de materiales"
+  },
+  {
+    "codigo": "COC-2200",
+    "nombre": "Mecánica de fluidos"
+  },
+  {
+    "codigo": "COC-2101",
+    "nombre": "Mecánica de Sólidos"
+  },
+  {
+    "codigo": "COC-2002",
+    "nombre": "Edificación"
+  },
+  {
+    "codigo": "COC-2201",
+    "nombre": "Hidráulica"
+  },
+  {
+    "codigo": "COC-2102",
+    "nombre": "Análisis estructural"
+  },
+  {
+    "codigo": "COC-2203",
+    "nombre": "Ingeniería ambiental"
+  },
+  {
+    "codigo": "COC-2003",
+    "nombre": "Tecnología del hormigón"
+  },
+  {
+    "codigo": "COC-2103",
+    "nombre": "Diseño estructural"
+  },
+  {
+    "codigo": "COC-2104",
+    "nombre": "Mecánica de Suelos"
+  },
+  {
+    "codigo": "COC-2204",
+    "nombre": "Hidrología"
+  },
+  {
+    "codigo": "COC-2004",
+    "nombre": "Administración de Proyectos Civiles"
+  },
+  {
+    "codigo": "COC-2105",
+    "nombre": "Diseño en Hormigón"
+  },
+  {
+    "codigo": "COC-2106",
+    "nombre": "Fundaciones"
+  },
+  {
+    "codigo": "COC-2205",
+    "nombre": "Hidráulica urbana"
+  },
+  {
+    "codigo": "COC-2005",
+    "nombre": "Planificación de Proyectos"
+  },
+  {
+    "codigo": "COC-2107",
+    "nombre": "Diseño en Acero"
+  },
+  {
+    "codigo": "COC-3100",
+    "nombre": "Ingeniería Sísmica"
+  },
+  {
+    "codigo": "COC-3000",
+    "nombre": "Ingeniería de Costos"
+  },
+  {
+    "codigo": "COC-3001",
+    "nombre": "Diseño de Caminos"
+  },
+  {
+    "codigo": "COC-2100",
+    "nombre": "Estática - Obras Civiles"
+  },
+  {
+    "codigo": "CBE-2000",
+    "nombre": "Probabilidad y estadística - Industrial"
+  }
+]
