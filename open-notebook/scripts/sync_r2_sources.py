@@ -109,7 +109,9 @@ def sync(mapping_path: Path) -> None:
                 continue
 
             filename = parts[-1]
-            public_url = f"{R2_PUBLIC_DOMAIN}/{key}" if R2_PUBLIC_DOMAIN else key
+            import urllib.parse
+            url_encoded_key = urllib.parse.quote(key)
+            public_url = f"{R2_PUBLIC_DOMAIN}/{url_encoded_key}" if R2_PUBLIC_DOMAIN else url_encoded_key
             title = os.path.splitext(filename)[0]
 
             try:
@@ -169,7 +171,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--mapping",
         type=Path,
-        default=Path(__file__).resolve().parent / "notebook_mapping.json",
+        default=Path(__file__).resolve().parent.parent.parent / "epauta" / "src" / "data" / "notebook_mapping.json",
         help="Path to notebook_mapping.json",
     )
     args = parser.parse_args()

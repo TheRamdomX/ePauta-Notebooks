@@ -163,11 +163,6 @@ def main(epauta_data: Path, output_map: Path):
                 
                 public_url = f"{R2_PUBLIC_DOMAIN}/{url_encoded_key}" if R2_PUBLIC_DOMAIN else url_encoded_key
                 
-                # Engañamos a Jina agregando algo al final de la URL si no detecta la extensión
-                # Como Cloudflare ignora los query params si no están configurados para cache, podemos usar esto:
-                if not public_url.lower().endswith('.pdf'):
-                    public_url = f"{public_url}?type=.pdf"
-                
                 title = os.path.splitext(filename)[0]
 
                 try:

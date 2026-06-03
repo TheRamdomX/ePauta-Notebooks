@@ -156,7 +156,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path(__file__).resolve().parent / "notebook_mapping.json",
+        default=Path(__file__).resolve().parent.parent.parent / "epauta" / "src" / "data" / "notebook_mapping.json",
         help="Output path for the mapping JSON",
     )
     args = parser.parse_args()
