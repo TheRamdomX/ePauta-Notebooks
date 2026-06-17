@@ -12,8 +12,7 @@
 import { storage } from "@/lib/storage";
 import Layout from "@/layouts/Layout.astro";
 import ResourcesWithViewer from "@/components/ResourcesWithViewer";
-import RamoChat from "@/components/RamoChat";
-import CollapsibleChatPanel from "@/components/CollapsibleChatPanel";
+import CoursePageLayout from "@/components/CoursePageLayout";
 import ErrorMessage from "@/components/ui/ErrorMessage.astro";
 import EmptyState from "@/components/ui/EmptyState.astro";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -148,12 +147,12 @@ if (useOpenNotebook && searchParam) {
         name="search"
         placeholder="Buscar archivos..."
         value={searchParam}
-        class="flex-1 md:flex-initial px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-[200px]"
+        class="flex-1 md:flex-initial px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-[200px]"
         aria-label="Buscar archivos"
       />
       <button
         type="submit"
-        class="px-4 py-2 bg-white text-primary border border-gray-300 rounded-md hover:bg-primary hover:text-white hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        class="px-4 py-2 bg-white text-primary border border-gray-300 rounded-2xl hover:bg-primary hover:text-white hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
         aria-label="Buscar"
       >
         <MagnifyingGlassIcon className="w-5 h-5" />
@@ -200,36 +199,21 @@ if (useOpenNotebook && searchParam) {
     )
   }
 
-  <!-- Contenido principal: visor + chat (si hay notebookId) -->
-  {
-    !r2Error && !openNotebookError && recursos.length > 0 && (
-      <div class={`flex flex-col ${notebookId ? "lg:flex-row items-start" : ""} gap-4 mt-8`}>
-        {/* Visor de archivos */}
-        <div class={notebookId ? "w-full lg:flex-1 min-w-0" : "w-full"}>
-          <ErrorBoundary client:only="react">
-            <ResourcesWithViewer recursos={recursos} client:visible />
-          </ErrorBoundary>
+  <!-- Contenido principal -->
+  {!r2Error && !openNotebookError && recursos.length > 0 && (
+    <ErrorBoundary client:only="react">
+      {notebookId ? (
+        <CoursePageLayout
+          recursos={recursos}
+          notebookId={notebookId}
+          ramoNombre={nombre}
+          client:only="react"
+        />
+      ) : (
+        <div class="mt-8">
+          <ResourcesWithViewer recursos={recursos} client:visible />
         </div>
-
-        {/* Panel de chat IA desplegable (solo cuando hay integración con open-notebook) */}
-        {notebookId && (
-          <ErrorBoundary client:only="react">
-            <div class="w-full lg:w-96 shrink-0 lg:sticky lg:top-4 z-40 h-[80vh]">
-              <CollapsibleChatPanel
-                notebookId={notebookId}
-                ramoNombre={nombre}
-                client:visible
-              >
-                <RamoChat
-                  notebookId={notebookId}
-                  ramoNombre={nombre}
-                  client:visible
-                />
-              </CollapsibleChatPanel>
-            </div>
-          </ErrorBoundary>
-        )}
-      </div>
-    )
-  }
+      )}
+    </ErrorBoundary>
+  )}
 </Layout>

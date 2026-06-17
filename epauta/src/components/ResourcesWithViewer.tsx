@@ -32,7 +32,7 @@ export const ResourcesWithViewer = ({ recursos }: ResourcesWithViewerProps) => {
     <div className="flex flex-col lg:flex-row gap-4 min-h-[80vh]">
       {/* Panel izquierdo: Lista de recursos */}
       <div className="lg:w-1/3 overflow-y-auto">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {recursos && recursos.length > 0 ? (
             recursos.map((recurso) => (
               <MaterialCard

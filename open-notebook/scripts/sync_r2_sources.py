@@ -12,7 +12,7 @@ Idempotent: re-running skips sources whose URL already exists.
 
 Usage:
     python scripts/sync_r2_sources.py \
-        --mapping epauta/src/data/notebook_mapping.json
+        --mapping scripts/notebook_mapping.json
 
 Environment variables (required):
     R2_ENDPOINT          — e.g. https://<account>.r2.cloudflarestorage.com
@@ -29,14 +29,14 @@ import argparse
 import json
 import os
 import sys
-import urllib.parse
 from pathlib import Path
 
 from dotenv import load_dotenv
 import httpx
 
-# Load .env if it exists
+# Load .env.local if it exists
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
 
 API_BASE = os.environ.get("OPEN_NOTEBOOK_API", "http://localhost:5055/api")
 
@@ -45,6 +45,7 @@ R2_ACCESS_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID")
 R2_SECRET_ACCESS_KEY = os.environ.get("R2_SECRET_ACCESS_KEY")
 R2_BUCKET_NAME = os.environ.get("R2_BUCKET_NAME", "epauta")
 R2_PUBLIC_DOMAIN = os.environ.get("R2_PUBLIC_DOMAIN")
+
 
 
 def list_r2_files() -> list[str]:
@@ -87,22 +88,18 @@ def sync(mapping_path: Path) -> None:
     files = list_r2_files()
     print(f"Found {len(files)} files in R2\n")
 
-    queued = 0
+    created = 0
     skipped = 0
     errors = 0
 
-    # Timeout corto: la API responde inmediatamente en modo async (no espera al worker)
-    with httpx.Client(base_url=API_BASE, timeout=30) as client:
+    with httpx.Client(base_url=API_BASE, timeout=60) as client:
         for key in files:
-            # Saltar directory markers (keys que terminan en '/')
-            if key.endswith("/"):
-                print(f"  [dir skip] {key}")
-                continue
-
-            # ePAUTA almacena archivos como: <programa>/<CODIGO>/filename.ext
-            # El slug en el mapping es "<programa>/<CODIGO>"
+            # ePAUTA stores files as: <programa>/<CODIGO>/filename.ext
+            # e.g. eit/CIT-1010/apunte.pdf
+            # The slug in our mapping is "<programa>/<CODIGO>"
             parts = key.split("/")
             if len(parts) < 3:
+                # Not a valid file path (might be a directory marker)
                 continue
 
             slug = f"{parts[0]}/{parts[1]}"
@@ -112,24 +109,25 @@ def sync(mapping_path: Path) -> None:
                 continue
 
             filename = parts[-1]
+            import urllib.parse
             url_encoded_key = urllib.parse.quote(key)
             public_url = f"{R2_PUBLIC_DOMAIN}/{url_encoded_key}" if R2_PUBLIC_DOMAIN else url_encoded_key
             title = os.path.splitext(filename)[0]
 
             try:
+                # Create Source with notebook linkage (include notebooks in payload)
                 resp = client.post(
                     "/sources/json",
                     json={
                         "type": "link",
                         "url": public_url,
                         "title": title,
-                        "notebooks": [notebook_id],
-                        "embed": True,
-                        "async_processing": True,  # No bloquear: el worker procesa en background
+                        "notebooks": [notebook_id],  # Link to notebook during creation
+                        "embed": True,  # Enable embedding for AI context
                     },
                 )
-
                 if resp.status_code == 409:
+                    # Source with this URL likely already exists
                     print(f"  [exists] {key}")
                     skipped += 1
                     continue
@@ -137,14 +135,18 @@ def sync(mapping_path: Path) -> None:
                 if not resp.is_success:
                     error_detail = resp.text
                     try:
-                        error_detail = resp.json().get("detail", error_detail)
-                    except Exception:
+                        error_json = resp.json()
+                        error_detail = error_json.get("detail", str(error_json))
+                    except:
                         pass
                     print(f"  [error] {key}: HTTP {resp.status_code} - {error_detail}")
                     errors += 1
                     continue
 
+                resp.raise_for_status()
                 source_data = resp.json()
+
+                # The API may return the source nested or flat
                 source_id = (
                     source_data.get("id")
                     or source_data.get("source", {}).get("id")
@@ -154,17 +156,14 @@ def sync(mapping_path: Path) -> None:
                     errors += 1
                     continue
 
-                print(f"  [queued] {key} -> {slug} (source: {source_id})")
-                queued += 1
+                print(f"  [synced] {key} -> {slug}")
+                created += 1
 
             except Exception as e:
                 print(f"  [error] {key}: {e}")
                 errors += 1
 
-    print(f"\nDone: {queued} queued, {skipped} skipped, {errors} errors")
-    if queued > 0:
-        print("El worker está procesando los archivos en background.")
-        print("Revisa los logs del servidor para ver el progreso.")
+    print(f"\nDone: {created} synced, {skipped} skipped, {errors} errors")
 
 
 if __name__ == "__main__":
@@ -176,4 +175,4 @@ if __name__ == "__main__":
         help="Path to notebook_mapping.json",
     )
     args = parser.parse_args()
-    sync(args.mapping)  
+    sync(args.mapping)

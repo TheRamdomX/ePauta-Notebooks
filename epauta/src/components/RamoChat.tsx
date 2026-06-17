@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 interface Message {
   role: "user" | "assistant";
@@ -19,16 +22,43 @@ interface RamoChatProps {
  * 2. Each message is sent to `/api/chat/ask` which proxies to open-notebook.
  * 3. The response arrives as SSE chunks that are streamed into the UI.
  */
+const SESSION_KEY = (id: string) => `epauta_chat_session_${id}`;
+const MESSAGES_KEY = (id: string) => `epauta_chat_messages_${id}`;
+
 export default function RamoChat({ notebookId, ramoNombre }: RamoChatProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    try {
+      const stored = sessionStorage.getItem(MESSAGES_KEY(notebookId));
+      return stored ? (JSON.parse(stored) as Message[]) : [];
+    } catch {
+      return [];
+    }
+  });
   const [input, setInput] = useState("");
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(() => {
+    try {
+      return sessionStorage.getItem(SESSION_KEY(notebookId));
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Create a chat session on mount
+  // Persist messages to sessionStorage whenever they change
   useEffect(() => {
+    try {
+      sessionStorage.setItem(MESSAGES_KEY(notebookId), JSON.stringify(messages));
+    } catch {
+      // sessionStorage can throw in private browsing when full
+    }
+  }, [messages, notebookId]);
+
+  // Create a chat session on mount only if we don't already have one
+  useEffect(() => {
+    if (sessionId) return; // reuse existing session from sessionStorage
+
     const controller = new AbortController();
     fetch("/api/chat/create-session", {
       method: "POST",
@@ -40,7 +70,12 @@ export default function RamoChat({ notebookId, ramoNombre }: RamoChatProps) {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
-      .then((data) => setSessionId(data.sessionId))
+      .then((data) => {
+        setSessionId(data.sessionId);
+        try {
+          sessionStorage.setItem(SESSION_KEY(notebookId), data.sessionId);
+        } catch {}
+      })
       .catch((err) => {
         if (err.name !== "AbortError") {
           console.error("Failed to create chat session:", err);
@@ -48,7 +83,7 @@ export default function RamoChat({ notebookId, ramoNombre }: RamoChatProps) {
         }
       });
     return () => controller.abort();
-  }, [notebookId]);
+  }, [notebookId, sessionId]);
 
   // Auto-scroll on new messages
   useEffect(() => {
@@ -159,7 +194,8 @@ export default function RamoChat({ notebookId, ramoNombre }: RamoChatProps) {
               {msg.role === "assistant" ? (
                 <div className="prose prose-sm max-w-none">
                   <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
                     components={{
                       h1: ({ node, ...props }) => <h1 className="text-lg font-bold mt-2 mb-2" {...props} />,
                       h2: ({ node, ...props }) => <h2 className="text-base font-bold mt-2 mb-1" {...props} />,

@@ -13,10 +13,9 @@ let _disabled = false;
 
 function isRedisConfigured(): boolean {
   try {
-    return !!(
-      import.meta.env.REDIS_URL ||
-      import.meta.env.UPSTASH_REDIS_REST_URL
-    );
+    // Only signal "configured" for the TCP client if REDIS_URL is explicitly set.
+    // UPSTASH_REDIS_REST_URL is HTTP-based and handled separately (not here).
+    return !!import.meta.env.REDIS_URL;
   } catch {
     return false;
   }

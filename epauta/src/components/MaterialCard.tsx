@@ -16,7 +16,7 @@ export const MaterialCard = ({ material, onClick }: MaterialCardProps) => {
 
   return (
     <div
-      className="bg-gray-100 rounded-lg p-4 cursor-pointer h-full w-full hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+      className="bg-gray-100 rounded-2xl p-4 cursor-pointer h-full w-full hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       role="button"

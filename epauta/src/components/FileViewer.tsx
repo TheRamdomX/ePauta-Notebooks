@@ -136,7 +136,7 @@ export const FileViewer = ({ fileUrl, fileName }: FileViewerProps) => {
 
   // Renderizar visor de PDF
   const renderPDFViewer = () => (
-    <div className="h-[80vh] border border-gray-300">
+    <div className="h-[80vh] rounded-2xl overflow-hidden border border-gray-200">
       <Worker workerUrl={PDF_WORKER_URL}>
         <Viewer fileUrl={fileUrl} plugins={[defaultLayoutPluginInstance]} />
       </Worker>
@@ -145,7 +145,7 @@ export const FileViewer = ({ fileUrl, fileName }: FileViewerProps) => {
 
   // Renderizar visor de imágenes
   const renderImageViewer = () => (
-    <div className="h-[80vh] border border-gray-300 flex flex-col">
+    <div className="h-[80vh] rounded-2xl overflow-hidden border border-gray-200 flex flex-col">
       <Toolbar
         fileName={fileName}
         zoomLevel={zoomLevel}
@@ -174,7 +174,7 @@ export const FileViewer = ({ fileUrl, fileName }: FileViewerProps) => {
     const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`
 
     return (
-      <div className="h-[80vh] border border-gray-300 flex flex-col">
+      <div className="h-[80vh] rounded-2xl overflow-hidden border border-gray-200 flex flex-col">
         <Toolbar
           fileName={fileName}
           zoomLevel={zoomLevel}
@@ -205,7 +205,7 @@ export const FileViewer = ({ fileUrl, fileName }: FileViewerProps) => {
 
   // Renderizar vista de archivo no soportado
   const renderUnsupportedView = () => (
-    <div className="h-[80vh] border border-gray-300 flex flex-col">
+    <div className="h-[80vh] rounded-2xl overflow-hidden border border-gray-200 flex flex-col">
       <Toolbar
         fileName={fileName}
         zoomLevel={1}

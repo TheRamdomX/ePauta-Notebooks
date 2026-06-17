@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
-import { ChevronDownIcon, X } from "lucide-react";
-
+import { useState } from "react";
+import { X, MessageCircle, ChevronDown, Plus } from "lucide-react";
 
 interface CollapsibleChatPanelProps {
   notebookId: string;
@@ -13,129 +12,88 @@ export default function CollapsibleChatPanel({
   ramoNombre,
   children,
 }: CollapsibleChatPanelProps) {
-  const [isOpen, setIsOpen] = useState(true);
-  const [isDesktop, setIsDesktop] = useState(true); // Default a true o false
+  const [isOpen, setIsOpen] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
-  useEffect(() => {
-    // Solo se ejecuta en el cliente (Browser)
-    const checkViewport = () => setIsDesktop(window.innerWidth >= 1024);
-    checkViewport(); // Revisamos al montar
-    window.addEventListener("resize", checkViewport);
-    return () => window.removeEventListener("resize", checkViewport);
-  }, []);
+  function handleNewChat() {
+    try {
+      sessionStorage.removeItem(`epauta_chat_session_${notebookId}`);
+      sessionStorage.removeItem(`epauta_chat_messages_${notebookId}`);
+    } catch {}
+    setResetKey((k) => k + 1);
+  }
 
   return (
-    <div className={`fixed top-20 right-4 w-96 lg:static lg:w-96 lg:h-full z-40 transition-all ${!isOpen ? "lg:w-auto" : ""}`}>
-      {/* Chat panel */}
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+      {/* Panel flotante — siempre montado, solo se oculta visualmente */}
       <div
-        className={`
+        className="
           flex flex-col
-          bg-white rounded-lg shadow-lg border border-gray-200
-          transition-all duration-300 ease-in-out lg:h-[80vh]
-          ${
-            isOpen
-              ? "opacity-100 scale-100 translate-y-0"
-              : "opacity-0 scale-95 translate-y-4 pointer-events-none"
-          }
-        `}
+          w-[360px] sm:w-[400px]
+          bg-white rounded-2xl shadow-2xl border border-gray-200
+          overflow-hidden
+          transition-all duration-300 ease-in-out
+          origin-bottom-right
+        "
         style={{
-          height: isOpen ? (isDesktop ? "80vh" : "auto") : "0",
-          overflow: "hidden",
+          height: isOpen ? "520px" : "0px",
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? "auto" : "none",
+          marginBottom: isOpen ? undefined : "0px",
         }}
+        aria-hidden={!isOpen}
       >
-        {/* Header con botón de cerrar */}
-        <div className="flex items-center justify-between p-3 border-b bg-gray-50 rounded-t-lg">
-          <h3 className="font-semibold text-sm text-gray-700">
-            Chat - {ramoNombre}
-          </h3>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-1 hover:bg-gray-200 rounded transition-colors"
-            aria-label="Cerrar chat"
-          >
-            <X className="w-4 h-4 text-gray-600" />
-          </button>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 bg-red-500 text-white shrink-0">
+          <div className="flex items-center gap-2">
+            <MessageCircle className="w-4 h-4" />
+            <span className="font-semibold text-sm truncate max-w-[240px]">
+              {ramoNombre}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleNewChat}
+              className="p-1 hover:bg-red-600 rounded-lg transition-colors"
+              aria-label="Nuevo chat"
+              title="Nuevo chat"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-1 hover:bg-red-600 rounded-lg transition-colors"
+              aria-label="Minimizar chat"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Contenido del chat */}
-        <div className="flex-1 overflow-hidden flex flex-col">{children}</div>
+        {/* Contenido del chat — siempre renderizado para no perder estado */}
+        <div key={resetKey} className="flex-1 overflow-hidden flex flex-col min-h-0">
+          {children}
+        </div>
       </div>
 
-      {/* Botón para abrir cuando está cerrado */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="
-            fixed top-20 right-4 w-96
-            bg-red-500 hover:bg-red-600
-            text-white rounded-lg p-3
-            shadow-lg transition-all duration-200
-            font-semibold text-sm
-          "
-          aria-label="Abrir chat"
-        >
-          💬 Abrir Chat
-        </button>
-      )}
-    </div>
-  );
-}
-
-
-interface ChatProps {
-  messages: Message[];
-  onSendMessage: (content: string) => void;
-}
-
-function Chat({ messages, onSendMessage }: ChatProps) {
-  const [inputValue, setInputValue] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim()) return;
-    onSendMessage(inputValue.trim());
-    setInputValue("");
-  };
-
-  return (
-    <div className="flex-1 flex flex-col p-4">
-      <div className="flex-1 overflow-y-auto mb-4">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`my-2 p-3 rounded-lg max-w-xs ${
-              msg.sender === "user"
-                ? "bg-blue-500 text-white ml-auto"
-                : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            <ReactMarkdown
-              className="prose prose-sm"
-              remarkPlugins={[remarkGfm]}
-            >
-              {msg.content}
-            </ReactMarkdown>
-          </div>
-        ))}
-      </div>
-      <form
-        onSubmit={handleSubmit}
-        className="flex items-center border-t pt-2"
+      {/* Botón flotante toggle */}
+      <button
+        onClick={() => setIsOpen((v) => !v)}
+        className="
+          flex items-center gap-2
+          bg-red-500 hover:bg-red-600 active:bg-red-700
+          text-white
+          px-4 py-3 rounded-full
+          shadow-lg hover:shadow-xl
+          transition-all duration-200
+          font-semibold text-sm
+        "
+        aria-label={isOpen ? "Minimizar chat" : "Abrir chat IA"}
       >
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Escribe tu mensaje..."
-        />
-        <button
-          type="submit"
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-        >
-          Enviar
-        </button>
-      </form>
+        <MessageCircle className="w-5 h-5" />
+        {!isOpen && <span>Chat IA</span>}
+        {isOpen && <X className="w-4 h-4" />}
+      </button>
     </div>
   );
 }
