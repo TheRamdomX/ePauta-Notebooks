@@ -647,7 +647,7 @@ async def get_source(source_id: str):
 
         # Get associated notebooks
         notebooks_query = await repo_query(
-            "SELECT VALUE in FROM reference WHERE out = $source_id",
+            "SELECT VALUE out FROM reference WHERE in = $source_id",
             {"source_id": ensure_record_id(source.id or source_id)},
         )
         notebook_ids = (
@@ -843,7 +843,7 @@ async def retry_source_processing(source_id: str):
                 # Continue with retry if we can't check status
 
         # Get notebooks that this source belongs to
-        query = "SELECT VALUE in FROM reference WHERE out = $source_id"
+        query = "SELECT VALUE out FROM reference WHERE in = $source_id"
         notebook_ids = await repo_query(query, {"source_id": ensure_record_id(source_id)})
         notebook_ids = [str(nb_id) for nb_id in notebook_ids]
 

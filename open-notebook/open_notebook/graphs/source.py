@@ -32,7 +32,7 @@ class TransformationState(TypedDict):
 
 
 async def content_process(state: SourceState) -> dict:
-    content_settings = await ContentSettings.get("open_notebook:content_settings") or ContentSettings(
+    content_settings = await ContentSettings.get_instance() or ContentSettings(
         default_content_processing_engine_doc="auto",
         default_content_processing_engine_url="auto",
         default_embedding_option="ask",

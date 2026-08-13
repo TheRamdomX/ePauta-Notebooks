@@ -48,9 +48,16 @@ services:
       - EPAUTA_ORIGIN=${CORS_ORIGINS}
     volumes:
       - ./notebook_data:/app/data
-      # Mount source code for development (override compiled version)
-      - ./open_notebook:/app/open_notebook
-      - ./api:/app/api
+      # NOTA: los mounts de código fuente están deshabilitados a propósito.
+      # ./open_notebook y ./api de este repo son de una release anterior a la que
+      # trae lfnovo/open_notebook:v1-latest, y montarlos rompe el arranque
+      # (ModuleNotFoundError: open_notebook.utils.proxy, PODCASTS_FOLDER, etc.).
+      # La imagen ya incluye las correcciones que se habían parcheado a mano.
+      # Para volver a montar código hay que sincronizar este repo con la versión
+      # de la imagen y re-aplicar las customizaciones ePAUTA (cache Redis en
+      # search.py, config de modelos por env vars en ai/models.py y ai/provision.py).
+      # - ./open_notebook:/app/open_notebook
+      # - ./api:/app/api
     depends_on:
       - surrealdb
       - redis

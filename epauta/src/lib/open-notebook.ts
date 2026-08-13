@@ -164,6 +164,20 @@ export async function getChatSession(
   );
 }
 
+export async function buildChatContext(
+  notebookId: string,
+  contextConfig?: Record<string, unknown>
+): Promise<{ context: Record<string, unknown>; token_count: number; char_count: number }> {
+  const body: Record<string, unknown> = {
+    notebook_id: notebookId,
+    context_config: contextConfig || {},
+  };
+  return apiFetch<{ context: Record<string, unknown>; token_count: number; char_count: number }>("/chat/context", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
 /**
  * Execute a chat turn. This is NOT streaming — it sends a message and
  * returns the full response with all messages.

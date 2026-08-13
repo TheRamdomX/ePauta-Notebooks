@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { executeChat } from "@/lib/open-notebook";
+import { executeChat, buildChatContext } from "@/lib/open-notebook";
 
 /**
  * POST /api/chat/ask
@@ -32,11 +32,12 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   try {
-    // Build a minimal context: all sources/notes from the notebook are
-    // available to the model. For a focused RAG experience ePAUTA passes
-    // an empty context object so open-notebook uses its default retrieval.
-    const context = { sources: {}, notes: {} };
-    const result = await executeChat(sessionId, message, context);
+    // Build full context: all sources/notes from the notebook are
+    // available to the model. Using default config for now, which fetches all
+    // sources with short context. If you want full context, pass contextConfig.
+    const contextData = await buildChatContext(notebookId);
+
+    const result = await executeChat(sessionId, message, contextData.context);
 
     return new Response(JSON.stringify(result), {
       headers: { "Content-Type": "application/json" },

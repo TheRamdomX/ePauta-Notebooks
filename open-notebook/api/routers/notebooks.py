@@ -298,7 +298,7 @@ async def remove_source_from_notebook(notebook_id: str, source_id: str):
 
         # Delete the reference record linking source to notebook
         await repo_query(
-            "DELETE FROM reference WHERE out = $source_id AND in = $notebook_id",
+            "DELETE FROM reference WHERE out = $notebook_id AND in = $source_id",
             {
                 "notebook_id": ensure_record_id(notebook_id),
                 "source_id": ensure_record_id(source_id),

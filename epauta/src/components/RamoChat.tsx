@@ -126,14 +126,22 @@ export default function RamoChat({ notebookId, ramoNombre }: RamoChatProps) {
 
       console.log("AI messages:", aiMessages);
 
-      // Find the last AI message
-      const lastAi = [...aiMessages].reverse().find((m) => m.type === "ai");
+      // Find the last AI message. The API uses generic langchain types like 'human' and 'ai' 
+      // however some standard implementations might return it differently, checking both ai/assistant just in case.
+      const lastAi = [...aiMessages].reverse().find((m) => m.type === "ai" || m.type === "assistant");
       console.log("Last AI message:", lastAi);
 
       if (lastAi && lastAi.content) {
+        // If content is an array (e.g. some complex message types in Langchain), stringify or extract text
+        const contentStr = typeof lastAi.content === "string" 
+           ? lastAi.content 
+           : Array.isArray(lastAi.content as any) && (lastAi.content as any).length > 0 && typeof (lastAi.content as any)[0] === "object" && 'text' in (lastAi.content as any)[0]
+             ? (lastAi.content as any)[0].text
+             : JSON.stringify(lastAi.content);
+
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: lastAi.content },
+          { role: "assistant", content: contentStr },
         ]);
       } else {
         console.error("No AI message content found");
